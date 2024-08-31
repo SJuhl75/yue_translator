@@ -1,3 +1,6 @@
 [submodule "SenseVoice"]
 	path = SenseVoice
 	url = https://github.com/FunAudioLLM/SenseVoice.git
+[submodule "FunASR"]
+	path = FunASR
+	url = https://github.com/modelscope/FunASR.git
