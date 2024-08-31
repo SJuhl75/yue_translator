@@ -4,3 +4,6 @@
 [submodule "FunASR"]
 	path = FunASR
 	url = https://github.com/modelscope/FunASR.git
+[submodule "CantoneseTranslation"]
+	path = CantoneseTranslation
+	url = https://github.com/kenrickkung/CantoneseTranslation.git
