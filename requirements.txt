@@ -1,0 +1,13 @@
+torch
+gradio
+silero-vad
+noisereduce
+funasr
+modelscope 
+transformers
+chinese_converter
+gdown
+googletrans
+googletrans-py
+pycantonese
+huggingface_hub
