@@ -10,4 +10,5 @@ gdown
 googletrans
 googletrans-py
 pycantonese
+canto-filter
 huggingface_hub

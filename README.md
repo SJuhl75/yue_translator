@@ -11,7 +11,8 @@ Basic Workflow of the Web App
 3)   Transcribe audio using the FunASR framework with the SenseVoice model, which outperforms whisper (see https://arxiv.org/html/2407.04051v2).
       + https://github.com/FunAudioLLM/SenseVoice
       + https://github.com/modelscope/FunASR 
-4)   Use PyCantonese to segement Cantonese words (-> https://pycantonese.org/)
+4)   Use PyCantonese to segement cantonese words (-> https://pycantonese.org/)
+5)   Use of Canto-filter to categorize language of the words transcribed (-> https://github.com/CanCLID/canto-filter)
 5)   Translate the transcribed text using CantoneseTranslator, using the best available nodel (= NLLB, see https://github.com/kenrickkung/CantoneseTranslation.git). The quality of the translation is comparable to Baidu or Bing Translator.
 
 Installation

@@ -11,6 +11,7 @@ import sys
 import os
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import pycantonese
+from cantofilter import judge
 from googletrans import Translator
 
 # Borrowed from CantoneseTranslation-Backend, due to little bug
@@ -203,6 +204,33 @@ def split_with_multiple_delimiters(text):
     # Join each part with its corresponding delimiter
     return [parts[i] + parts[i + 1] for i in range(0, len(parts) - 1, 2)]
 
+def format_text_with_judge(input_text):
+    # Split the input text by spaces
+    words = input_text.split()
+
+    # Define a mapping of judge results to colors
+    color_map = {
+        "cantonese": "black",
+        "mandarin": "green",
+        "mixed": "blue",
+        "neutral": "grey"
+    }
+
+    # Process each word/group
+    formatted_words = []
+    for word in words:
+        # Apply the judge function to determine the language category
+        category = judge(word)
+        # Get the corresponding color
+        color = color_map.get(category, "grey")  # Default to grey if category is not recognized
+        # Format the word with the corresponding color
+        formatted_word = f"<span style='color:{color};'>{word}</span>"
+        formatted_words.append(formatted_word)
+
+    # Join the formatted words back into a single string
+    formatted_string = " ".join(formatted_words)
+    return formatted_string
+
 def apply_vad_and_transcribe(audio_file):
     try:
         # Load audio   wav, sr = librosa.load(audio_file, sr=16000)
@@ -247,12 +275,14 @@ def apply_vad_and_transcribe(audio_file):
         words = pycantonese.segment(transcription) #"廣東話好難學？")  # Is Cantonese difficult to learn?
         transcription = ' '.join(words)
         print("transcription=",transcription)
+        judged_transcript = format_text_with_judge(transcription)
 
         print("Translating to German...",clean_transcript)
         translation_de = translator.translate(clean_transcript, src='auto', dest='de').text
         print(f"Translation (DE): {translation_de}")
-
-        return transcription, translation_en, translation_de
+        
+        judge_info = "Language categories: <span style='color:black;'>cantonese</span> <span style='color:grey;'>neutral</span> <span style='color:blue;'>mixed</span> <span style='color:green;'>mandarin</span>"
+        return transcription, judge_info, judged_transcript, translation_en, translation_de
 
     except Exception as e:
         # Capture the error message and return it
@@ -262,19 +292,28 @@ def apply_vad_and_transcribe(audio_file):
 
 # MAIN Create Gradio interface
 
-iface = gr.Interface(
-    fn=apply_vad_and_transcribe,
-    inputs=[
-        gr.Audio(type="filepath", label="Upload Audio (.ogg, .mp3, .wav)")
-    ],
-    outputs=[
-        gr.Textbox(label="Transcription (PyCantonese)", show_copy_button=True),
-        gr.Textbox(label="English translation (NLLB-forward-1:1)", show_copy_button=True),
-        gr.Textbox(label="German translation (Google-Translate)", show_copy_button=True)
-    ],
-    allow_flagging="never",
-#    live=True
-)
+with gr.Blocks() as demo:
+    # Add your HTML component at the top (or wherever you prefer)
+    gr.HTML("""
+       <h2>Welcome to the Cantonese to English and German Translation Tool</h2>
+       <p>This tool uses advanced models to transcribe and translate audio inputs.</p>
+       """)
+
+    # Gradio Interface	iface = 
+    gr.Interface(
+        fn=apply_vad_and_transcribe,
+        inputs=[gr.Audio(type="filepath", label="Upload Audio (.ogg, .mp3, .wav)")],
+        outputs=[
+            gr.Textbox(label="Transcription (PyCantonese)", show_copy_button=True),
+            gr.Markdown(label="Category Info"),
+            gr.Markdown(label="Judged Text", show_copy_button=True),
+            gr.Textbox(label="English translation (NLLB-forward-1:1)", show_copy_button=True),
+            gr.Textbox(label="German translation (Google-Translate)", show_copy_button=True)
+        ],
+        allow_flagging="never"
+#    	 live=True
+    )#.render()
 
 # Launch Gradio app
-iface.launch(server_name="0.0.0.0", server_port=7867)
+demo.launch(server_name="0.0.0.0", server_port=7867)
+
