@@ -281,7 +281,7 @@ def apply_vad_and_transcribe(audio_file):
         translation_de = translator.translate(clean_transcript, src='auto', dest='de').text
         print(f"Translation (DE): {translation_de}")
         
-        judge_info = "Language categories: <span style='color:black;'>cantonese</span> <span style='color:grey;'>neutral</span> <span style='color:blue;'>mixed</span> <span style='color:green;'>mandarin</span>"
+        judge_info = "Language categories: <span style='font-style: italic;'><span style='color:black;'>cantonese</span> <span style='color:grey;'>neutral</span> <span style='color:blue;'>mixed</span> <span style='color:green;'>mandarin</span></span>"
         return transcription, judge_info, judged_transcript, translation_en, translation_de
 
     except Exception as e:
@@ -295,8 +295,7 @@ def apply_vad_and_transcribe(audio_file):
 with gr.Blocks() as demo:
     # Add your HTML component at the top (or wherever you prefer)
     gr.HTML("""
-       <h2>Welcome to the Cantonese to English and German Translation Tool</h2>
-       <p>This tool uses advanced models to transcribe and translate audio inputs.</p>
+       <h2>Welcome to the Cantonese transcription and translation tool</h2>
        """)
 
     # Gradio Interface	iface = 
@@ -304,11 +303,11 @@ with gr.Blocks() as demo:
         fn=apply_vad_and_transcribe,
         inputs=[gr.Audio(type="filepath", label="Upload Audio (.ogg, .mp3, .wav)")],
         outputs=[
-            gr.Textbox(label="Transcription (PyCantonese)", show_copy_button=True),
+            gr.Textbox(label="Transcription (segmented using PyCantonese)", show_copy_button=True),
             gr.Markdown(label="Category Info"),
             gr.Markdown(label="Judged Text", show_copy_button=True),
-            gr.Textbox(label="English translation (NLLB-forward-1:1)", show_copy_button=True),
-            gr.Textbox(label="German translation (Google-Translate)", show_copy_button=True)
+            gr.Textbox(label="English translation (using local NLLB-forward-1:1 model)", show_copy_button=True),
+            gr.Textbox(label="German translation (using Google-Translate)", show_copy_button=True)
         ],
         allow_flagging="never"
 #    	 live=True

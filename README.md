@@ -16,6 +16,16 @@ Basic Workflow of the Web App
 5)   Translate the transcribed text using CantoneseTranslator, using the best available model (= NLLB, see https://github.com/kenrickkung/CantoneseTranslation.git).
 The quality of the translation is comparable to Baidu or Bing Translator.
 
+Notes on Translation
+--------------------
+The ScareBLEU score of the nllb-forward-syn-1:1-mbart model used for local
+on premises translation is 16.8. This is on a par with the Baidu translator
+(16.6), but below the top scores of Bing Translator (17.1) or ChatGPT's Cantonese
+Companion (19.2).
++	https://chatgpt.com/g/g-749lHuJQB-cantonese-companion
++	https://www.bing.com/translator
++	https://fanyi.baidu.com/
+
 Installation
 ------------
 1)   python -m venv venv
