@@ -13,7 +13,8 @@ Basic Workflow of the Web App
       + https://github.com/modelscope/FunASR 
 4)   Use PyCantonese to segement cantonese words (-> https://pycantonese.org/)
 5)   Use of Canto-filter to categorize language of the words transcribed (-> https://github.com/CanCLID/canto-filter)
-5)   Translate the transcribed text using CantoneseTranslator, using the best available nodel (= NLLB, see https://github.com/kenrickkung/CantoneseTranslation.git). The quality of the translation is comparable to Baidu or Bing Translator.
+5)   Translate the transcribed text using CantoneseTranslator, using the best available model (= NLLB, see https://github.com/kenrickkung/CantoneseTranslation.git).
+The quality of the translation is comparable to Baidu or Bing Translator.
 
 Installation
 ------------
