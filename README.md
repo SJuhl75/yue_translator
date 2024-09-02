@@ -28,7 +28,6 @@ Future Work?
 -   What about ParaformerZH (on par with SenseVoice)
 -   Tokenizer? https://medium.com/@kyubi_fox/evaluating-cantonese-performance-in-nlp-systems-8bcc3c916b71
 -   Use CKIP instead of PyCantonese?
--   Classify trascribed text using https://github.com/CanCLID/canto-filter#cantonese-text-classifier?
    
 *Other useful ressources:*
 + https://github.com/ingeniela/simtracan-translator
