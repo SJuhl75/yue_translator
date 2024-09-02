@@ -1,36 +1,33 @@
-yue Translator
+**yue Translator**
+-----------------
+Cantonese transcription and translation using the best open source tools available, running locally in a fair-well GPU-powered environment.
+Automatic download of translation models on first run may take a while, and roughly requires 5GB of additional disk space.
+Web interface is available via port 7867
 
+Basic Workflow of the Web App
+-----------------------------
+1)   Upload of Audio files
+2)   Preprocess audio (reduce noice, normalize, voice activity detection using silero-vad -> https://github.com/snakers4/silero-vad).
+3)   Transcribe audio using the FunASR framework with the SenseVoice model, which outperforms whisper (see https://arxiv.org/html/2407.04051v2).
+      + https://github.com/FunAudioLLM/SenseVoice
+      + https://github.com/modelscope/FunASR 
+4)   Use PyCantonese to segement Cantonese words (-> https://pycantonese.org/)
+5)   Translate the transcribed text using CantoneseTranslator, using the best available nodel (= NLLB, see https://github.com/kenrickkung/CantoneseTranslation.git). The quality of the translation is comparable to Baidu or Bing Translator.
 
+Installation
+------------
+1)   python -m venv venv
+2)   source venv/bin/activate
+3)   pip install -r requirements.txt
+4)   python web.py
 
-Project Outline
----------------
-
-1) Preprocess audio (reduce noice, normalize, voice detection using silero-vad)
-2) Analyze audio using sensevoice 
-   SenseVoice unterstützt die Erkennung von mehr als 50 Sprachen und 
-   seine Erkennungsergebnisse in Chinesisch und Kantonesisch sind besser
-   als das Whisper-Modell und verbessern sich um mehr als 50 %.
-   + https://github.com/FunAudioLLM/SenseVoice
-   + https://github.com/modelscope/FunASR 
-   What about ParaformerZH (on par with SenseVoice)
-3) split is using jieba?
-   Hmm :/ https://medium.com/@kyubi_fox/evaluating-cantonese-performance-in-nlp-systems-8bcc3c916b71
-   + use CKIP over PyCantonese 
-   + I picked the best performance model bert-base.
-4) Translate it using CantoneseTranslator (using best available model)
-   + https://github.com/kenrickkung/CantoneseTranslation.git
-5) Put it all together in a GRadio App
-
-Prequesites
------------
-
-SAMPLES
-+ https://voiceovers.asia/wp-content/uploads/2021/08/Leonard_Caltex_Techron_Cantonese.mp3
-+ wget https://upload.wikimedia.org/wikipedia/commons/5/5b/Zh-yue-%E4%B8%81%E8%9F%B9%E6%95%88%E6%87%89%28%E4%B8%8B%29.ogg
-
-DOCU
-----
-+ Auto-Download of translation models on initial run (may take a while, need
-5GB of space)
+Future Work?
+------------
+-   What about ParaformerZH (on par with SenseVoice)
+-   Tokenizer? https://medium.com/@kyubi_fox/evaluating-cantonese-performance-in-nlp-systems-8bcc3c916b71
+-   Use CKIP instead of PyCantonese?
+-   Classify trascribed text using https://github.com/CanCLID/canto-filter#cantonese-text-classifier?
+   
+*Other useful ressources:*
 + https://github.com/ingeniela/simtracan-translator
 + https://www.cantonesetools.org/de/cantonese-stroke-order-tool
