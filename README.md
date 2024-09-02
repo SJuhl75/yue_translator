@@ -18,7 +18,7 @@ The quality of the translation is comparable to Baidu or Bing Translator.
 
 Notes on Translation
 --------------------
-The ScareBLEU score of the nllb-forward-syn-1:1-mbart model used for local
+The SacreBLEU score of the nllb-forward-syn-1:1-mbart model used for local
 on premises translation is 16.8. This is on a par with the Baidu translator
 (16.6), but below the top scores of Bing Translator (17.1) or ChatGPT's Cantonese
 Companion (19.2).
