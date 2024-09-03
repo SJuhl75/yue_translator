@@ -13,6 +13,7 @@ from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 import pycantonese
 from cantofilter import judge
 from googletrans import Translator
+from openai import OpenAI
 
 # Borrowed from CantoneseTranslation-Backend, due to little bug
 class CanTranModel:
@@ -76,6 +77,15 @@ ct_model = CanTranModel()
 
 # Initialize Google Translator
 translator = Translator()
+
+# Check if the environment variable is set, and initialize OpenAI API client
+if "OPENAI_API_KEY" in os.environ:
+    # Initialize OpenAI API client
+    OAI = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    OAT, ENTR, DETR = True, "OpenAI API", "OpenAI API"
+else:
+    OAT, ENTR, DETR = False, "local NLLB-forward-1:1 model", "Google Translate"
+    print("WARNING: No OpenAI API Key provided!")
 
 # Load pre-trained model and tokenizer
 #model_name = "facebook/bart-large"
@@ -190,6 +200,33 @@ def translate_text(text, target_language):
         translated_segments.append(translated_segment)
 
     return ', '.join(translated_segments)  # Rejoin the segments with commas
+
+def translate_using_openai_API(text):
+    try:
+        # Make a call to OpenAI's chat completion endpoint
+        prompt = "Translate '" + text + "' from Cantonese to English and to German."
+        response = OAI.chat.completions.create(
+            model="gpt-3.5-turbo-16k",  # or another available model
+            messages=[{"role": "user", "content": prompt}] )
+        # Extract and return the response message
+        #return response.choices[0].message.content.strip()
+        response_text = response.choices[0].message.content.strip()
+        # Define the regex patterns for English and German translations
+        en_pattern = r'English.*?"(.*?)"'
+        de_pattern = r'[#\*]*German.*[:#\*]*"(.*?)"'
+
+        # Find the matches using regex
+        en_match = re.search(en_pattern, response_text, re.DOTALL)
+        de_match = re.search(de_pattern, response_text, re.DOTALL) # | re.IGNORECASE)
+
+        # Extract the matched text or set as None if not found
+        en_trans = en_match.group(1) if en_match else None
+        de_trans = de_match.group(1) if de_match else None
+        return en_trans, de_trans
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None, None
    
 def split_with_multiple_delimiters(text):
     # Define delimiters
@@ -259,27 +296,29 @@ def apply_vad_and_transcribe(audio_file):
         # Remove tags like <|yue|>, <|HAPPY|>, etc.
         clean_transcript = re.sub(r'<\|.*?\|>', '', transcription)
 
-        # Split the text using the multiple delimiters
-        #parts=split_with_multiple_delimiters(clean_transcript)
+        if OAT:
+            translation_en, translation_de = translate_using_openai_API(clean_transcript)
+        else:
+            # Split the text using the multiple delimiters
+            #parts=split_with_multiple_delimiters(clean_transcript)
 
-        # Pass each part to the user-defined function
-        #translation_en = ""
-        #for part in parts:
-        #    translation = ct_mdel.translate(part)
-        #    print(f"Translation: {translation}")
-        #    translation_en.join(translation)
-        translation_en = ct_model.translate(clean_transcript)
-        print(f"Translation: {translation_en}")
+            # Pass each part to the user-defined function
+            #translation_en = ""
+            #for part in parts:
+            #    translation = ct_mdel.translate(part)
+            #    print(f"Translation: {translation}")
+            #    translation_en.join(translation)
+            translation_en = ct_model.translate(clean_transcript)
+            translation_de = translator.translate(clean_transcript, src='auto', dest='de').text
+        
+        print(f"Translation (EN): {translation_en}")
+        print(f"Translation (DE): {translation_de}")
 
         # PyCantonese
         words = pycantonese.segment(transcription) #"廣東話好難學？")  # Is Cantonese difficult to learn?
         transcription = ' '.join(words)
         print("transcription=",transcription)
         judged_transcript = format_text_with_judge(transcription)
-
-        print("Translating to German...",clean_transcript)
-        translation_de = translator.translate(clean_transcript, src='auto', dest='de').text
-        print(f"Translation (DE): {translation_de}")
         
         judge_info = "Language categories: <span style='font-style: italic;'><span style='color:black;'>cantonese</span> <span style='color:grey;'>neutral</span> <span style='color:blue;'>mixed</span> <span style='color:green;'>mandarin</span></span>"
         return transcription, judge_info, judged_transcript, translation_en, translation_de
@@ -306,8 +345,8 @@ with gr.Blocks() as demo:
             gr.Textbox(label="Transcription (segmented using PyCantonese)", show_copy_button=True),
             gr.Markdown(label="Category Info"),
             gr.Markdown(label="Judged Text", show_copy_button=True),
-            gr.Textbox(label="English translation (using local NLLB-forward-1:1 model)", show_copy_button=True),
-            gr.Textbox(label="German translation (using Google-Translate)", show_copy_button=True)
+            gr.Textbox(label="English translation (using " + ENTR + ")", show_copy_button=True),
+            gr.Textbox(label="German translation (using " + DETR + ")", show_copy_button=True)
         ],
         allow_flagging="never"
 #    	 live=True
