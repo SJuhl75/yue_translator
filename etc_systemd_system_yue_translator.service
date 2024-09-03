@@ -2,7 +2,7 @@
 After=network.target
 
 [Service]
-Environment='OPENAI_API_KEY="sk-..."'
+Environment='OPENAI_API_KEY=sk-.......-....'
 WorkingDirectory=/opt/audio/yue_translator
 Type=simple
 ExecStart=/opt/audio/yue_translator/venv/bin/python /opt/audio/yue_translator/web.py

@@ -81,10 +81,12 @@ translator = Translator()
 # Check if the environment variable is set, and initialize OpenAI API client
 if "OPENAI_API_KEY" in os.environ:
     # Initialize OpenAI API client
-    OAI = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    OAK = os.getenv("OPENAI_API_KEY")
+    OAI = OpenAI(api_key=OAK)
     OAT, ENTR, DETR = True, "OpenAI API", "OpenAI API"
+    print("DEBUG: OpenAI API Key = ",OAK)
 else:
-    OAT, ENTR, DETR = False, "local NLLB-forward-1:1 model", "Google Translate"
+    OAK, OAI, OAT, ENTR, DETR = None, None, False, "local NLLB-forward-1:1 model", "Google Translate"
     print("WARNING: No OpenAI API Key provided!")
 
 # Load pre-trained model and tokenizer
@@ -211,17 +213,18 @@ def translate_using_openai_API(text):
         # Extract and return the response message
         #return response.choices[0].message.content.strip()
         response_text = response.choices[0].message.content.strip()
+
         # Define the regex patterns for English and German translations
         en_pattern = r'English.*?"(.*?)"'
         de_pattern = r'[#\*]*German.*[:#\*]*"(.*?)"'
 
         # Find the matches using regex
         en_match = re.search(en_pattern, response_text, re.DOTALL)
-        de_match = re.search(de_pattern, response_text, re.DOTALL) # | re.IGNORECASE)
+        de_match = re.search(de_pattern, response_text, re.DOTALL) 
 
         # Extract the matched text or set as None if not found
-        en_trans = en_match.group(1) if en_match else None
-        de_trans = de_match.group(1) if de_match else None
+        en_trans = en_match.group(1) if en_match else response_text
+        de_trans = de_match.group(1) if de_match else response_text
         return en_trans, de_trans
 
     except Exception as e:
@@ -336,6 +339,7 @@ with gr.Blocks() as demo:
     gr.HTML("""
        <h2>Welcome to the Cantonese transcription and translation tool</h2>
        """)
+#    gr.Textbox(label="API KEY",value=OAK)
 
     # Gradio Interface	iface = 
     gr.Interface(
@@ -348,9 +352,9 @@ with gr.Blocks() as demo:
             gr.Textbox(label="English translation (using " + ENTR + ")", show_copy_button=True),
             gr.Textbox(label="German translation (using " + DETR + ")", show_copy_button=True)
         ],
-        allow_flagging="never"
-#    	 live=True
-    )#.render()
+        allow_flagging="never",
+ 	live=True
+    )
 
 # Launch Gradio app
 demo.launch(server_name="0.0.0.0", server_port=7867)
