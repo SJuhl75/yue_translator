@@ -14,6 +14,8 @@ import pycantonese
 from cantofilter import judge
 from googletrans import Translator
 from openai import OpenAI
+from pydantic import BaseModel
+import json
 
 # Borrowed from CantoneseTranslation-Backend, due to little bug
 class CanTranModel:
@@ -203,7 +205,7 @@ def translate_text(text, target_language):
 
     return ', '.join(translated_segments)  # Rejoin the segments with commas
 
-def translate_using_openai_API(text):
+def translate_using_openai_API_old(text):
     try:
         # Make a call to OpenAI's chat completion endpoint
         prompt = "Translate '" + text + "' from Cantonese to English and to German."
@@ -228,6 +230,34 @@ def translate_using_openai_API(text):
         # Extract the matched text or set as None if not found
         en_trans = en_match.group(1) if en_match else response_text
         de_trans = de_match.group(1) if de_match else response_text
+        return en_trans, de_trans
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None, None
+
+def translate_using_openai_API(text):
+    try: # Make a call to OpenAI's chat completion endpoint with structured output
+        class Translator(BaseModel):
+            english: str
+            german: str
+        
+        prompt = "Translate '" + text + "' from Cantonese to English and German."
+        response = OAI.beta.chat.completions.parse(
+            # OpenAI API Rate Limits	  TPM  RPM RPD EOL
+            #model="gpt-3.5-turbo-16k",	# 200k 500 10k 13.09.2024
+            #model="4o-mini",		# 200k 500 10k -unknown-
+            #model="chatgpt-4o-latest",  # 500k 200 -   -unknown-
+            model="gpt-4o-2024-08-06",
+            messages=[{"role": "system", "content": "You are a professional native speaker of Cantonese and translate confidently from Cantonese into English and German."},
+                      {"role": "user", "content": prompt}    ],
+            response_format=Translator)
+
+        msg_dict = json.loads(response.choices[0].message.content)
+
+        en_trans = msg_dict["english"]
+        de_trans = msg_dict["german"]
+
         return en_trans, de_trans
 
     except Exception as e:

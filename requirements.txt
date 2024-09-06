@@ -13,3 +13,5 @@ pycantonese
 canto-filter
 huggingface_hub
 openai
+pydantic
+json
