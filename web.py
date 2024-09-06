@@ -208,7 +208,10 @@ def translate_using_openai_API(text):
         # Make a call to OpenAI's chat completion endpoint
         prompt = "Translate '" + text + "' from Cantonese to English and to German."
         response = OAI.chat.completions.create(
-            model="gpt-3.5-turbo-16k",  # or another available model
+            # OpenAI API Rate Limits	  TPM  RPM RPD EOL
+            #model="gpt-3.5-turbo-16k",	# 200k 500 10k 13.09.2024
+            #model="4o-mini",		# 200k 500 10k -unknown-
+            model="chatgpt-4o-latest",  # 500k 200 -   -unknown-
             messages=[{"role": "user", "content": prompt}] )
         # Extract and return the response message
         #return response.choices[0].message.content.strip()
